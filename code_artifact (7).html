@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《小封神》AI 視覺美術設計專案報告</title>
+    <!-- 引入 Tailwind CSS 確保極致響應式排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 繪製數據資產佔比 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@300;400;700&display=swap');
+
+        :root {
+            --fucheng-cream: #FDFBF7;
+            --fucheng-crimson: #A61D24;
+            --fucheng-gold: #D4AF37;
+            --fucheng-charcoal: #2D2D2D;
+        }
+
+        body {
+            background-color: var(--fucheng-cream);
+            color: var(--fucheng-charcoal);
+            font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .serif { font-family: 'Noto Serif TC', serif; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            height: 300px;
+        }
+
+        /* 3D 懸停特效 */
+        .character-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .character-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 25px 50px -12px rgba(166, 29, 36, 0.15);
+        }
+
+        /* 場景圖懸停遮罩 */
+        .scene-overlay {
+            background: linear-gradient(to top, rgba(18, 18, 18, 0.95) 0%, rgba(18, 18, 18, 0.4) 60%, transparent 100%);
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .scene-card:hover .scene-overlay {
+            opacity: 1;
+        }
+
+        /* 導航啟動指示線 */
+        .nav-active {
+            color: var(--fucheng-crimson);
+            border-bottom: 2px solid var(--fucheng-crimson);
+        }
+
+        .gold-glow {
+            text-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+        }
+
+        /* 圖片加載漸現過渡 */
+        .smart-img {
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .smart-img.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- 導航列 -->
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#A61D24] rounded-full flex items-center justify-center text-[#D4AF37] font-bold serif">封</div>
+                <span class="serif text-xl tracking-tighter font-bold">小封神專案檔案</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-bold tracking-widest text-gray-500 uppercase">
+                <a href="#hero" class="hover:text-[#A61D24] transition-colors">首頁</a>
+                <a href="#philosophy" class="hover:text-[#A61D24] transition-colors">設計標準</a>
+                <a href="#characters" class="hover:text-[#A61D24] transition-colors">諸神誌</a>
+                <a href="#scenery" class="hover:text-[#A61D24] transition-colors">地誌探索</a>
+                <a href="#mechanics" class="hover:text-[#A61D24] transition-colors">資產成果</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 💡 STREAMING_CHUNK: 建立主視覺 Hero 區域 -->
+    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+        <div class="absolute inset-0 z-0">
+            <!-- 靜態嵌入主視覺 A 款海報 -->
+            <img src="諸神破曉（《小封神》主視覺 A 款）.jpg" data-fallback-type="hero" alt="小封神主視覺" class="w-full h-full object-cover smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+        </div>
+        <div class="relative z-10 text-center px-4 max-w-4xl bg-black/25 p-8 rounded-3xl backdrop-blur-[2px]">
+            <p class="text-[#D4AF37] serif text-lg md:text-2xl mb-4 tracking-[0.5em] font-medium gold-glow">文學重塑 ‧ 府城新生</p>
+            <h1 class="serif text-5xl md:text-8xl text-white font-black mb-8 tracking-tighter drop-shadow-2xl">小封神</h1>
+            <div class="h-1 w-24 bg-[#A61D24] mx-auto mb-8"></div>
+            <p class="text-gray-100 text-sm md:text-xl font-light leading-relaxed max-w-2xl mx-auto">
+                AI 視覺美術與角色設計專案報告<br>
+                將許丙丁大師經典文學轉化為實境遊戲奇幻體驗
+            </p>
+            <div class="mt-12 flex justify-center gap-4">
+                <a href="#philosophy" class="px-8 py-3 bg-[#A61D24] text-white rounded-full font-bold hover:bg-[#8B181E] transition-all shadow-lg">進入專案</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💡 STREAMING_CHUNK: 建立設計標準與方法論展示區 -->
+    <section id="philosophy" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <span class="text-[#A61D24] font-bold tracking-widest text-sm uppercase">Design Methodology</span>
+                <h2 class="serif text-4xl md:text-5xl mt-2 mb-6 font-bold leading-tight">簡報製作標準與<br><span class="text-[#D4AF37]">視覺敘事核心</span></h2>
+                <p class="text-gray-600 leading-relaxed mb-8">
+                    本專案遵循「賈伯斯式極簡視覺流」，排除繁瑣文字，讓 300 DPI 的 AI 美術作品作為核心說服力。我們將投影片視為畫幅，運用故事敘事法帶領觀者穿梭於府城的歷史紋理。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-white border border-gray-100 rounded-xl border-l-4 border-l-[#A61D24] shadow-sm">
+                        <h4 class="font-bold mb-2">極簡視覺流</h4>
+                        <p class="text-xs text-gray-500">大圖留白排版，每張投影片聚焦單一關鍵美術概念，建立權威感。</p>
+                    </div>
+                    <div class="p-6 bg-white border border-gray-100 rounded-xl border-l-4 border-l-[#D4AF37] shadow-sm">
+                        <h4 class="font-bold mb-2">民俗色彩學</h4>
+                        <p class="text-xs text-gray-500">採用「玄黑、絳紅、帝金」作為主軸，還原台南古廟的神秘感。</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 靜態嵌入 B 款海報作為設計標準配圖 -->
+            <div class="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-zinc-900">
+                <img src="解謎府城（《小封神》主視覺 B 款）.jpg" data-fallback-type="methodology" alt="設計規範" class="w-full h-full object-cover smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                <div class="absolute -bottom-2 -right-2 bg-[#A61D24] text-white p-6 rounded-2xl hidden md:block z-10 shadow-lg">
+                    <p class="serif text-4xl font-bold">10+</p>
+                    <p class="text-[10px] opacity-80 tracking-widest">高品質交付資產</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💡 STREAMING_CHUNK: 建立諸神誌三大神明角色展示區 -->
+    <section id="characters" class="py-24 bg-[#F5F2EC] border-t border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="serif text-4xl text-[#A61D24] font-bold mb-4">核心角色設計：諸神誌</h3>
+                <p class="text-gray-500 max-w-xl mx-auto italic">融合傳統道教符號與現代奇幻感，重塑經典文學角色法相</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 上帝公 -->
+                <div class="character-card bg-white p-5 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="aspect-[3/4] rounded-xl overflow-hidden mb-6 bg-[#1A1A1A] relative flex items-center justify-center">
+                            <!-- 靜態嵌入上帝公角色圖 -->
+                            <img src="上帝公（玄天大帝）角色設計.jpg" data-fallback-type="character" data-fallback-name="上帝公" alt="上帝公" class="w-full h-full object-cover smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="serif text-2xl font-bold text-[#2D2D2D]">上帝公</h4>
+                            <span class="text-xs bg-[#2D2D2D] text-[#D4AF37] px-2 py-1 rounded font-bold">玄天大帝</span>
+                        </div>
+                        <ul class="text-xs text-gray-500 space-y-2 mb-4 leading-relaxed">
+                            <li>‧ 青年威嚴法相，雙眼綻放神聖微光</li>
+                            <li>‧ 身穿玄黑色暗紋戰甲，手持真武劍</li>
+                            <li>‧ 煙燻香火背景展現廟宇歷史厚重感</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 臨水夫人 -->
+                <div class="character-card bg-white p-5 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="aspect-[3/4] rounded-xl overflow-hidden mb-6 bg-[#1A1A1A] relative flex items-center justify-center">
+                            <!-- 靜態嵌入臨水夫人角色圖 -->
+                            <img src="臨水夫人角色設計.jpg" data-fallback-type="character" data-fallback-name="臨水夫人" alt="臨水夫人" class="w-full h-full object-cover smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="serif text-2xl font-bold text-[#A61D24]">臨水夫人</h4>
+                            <span class="text-xs bg-[#A61D24] text-white px-2 py-1 rounded font-bold">陳靖姑</span>
+                        </div>
+                        <ul class="text-xs text-gray-500 space-y-2 mb-4 leading-relaxed">
+                            <li>‧ 慈悲守護力，展現女性神明溫柔力量</li>
+                            <li>‧ 絳紅色刺繡神衣，點綴民俗鳳凰圖騰</li>
+                            <li>‧ 懸浮於神煙與守護紅線之中</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 齊天大聖 -->
+                <div class="character-card bg-white p-5 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="aspect-[3/4] rounded-xl overflow-hidden mb-6 bg-[#1A1A1A] relative flex items-center justify-center">
+                            <!-- 靜態嵌入齊天大聖角色圖 -->
+                            <img src="齊天大聖（大聖爺）角色設計.jpg" data-fallback-type="character" data-fallback-name="齊天大聖" alt="齊天大聖" class="w-full h-full object-cover smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="serif text-2xl font-bold text-gray-700">齊天大聖</h4>
+                            <span class="text-xs bg-gray-700 text-white px-2 py-1 rounded font-bold">大聖爺</span>
+                        </div>
+                        <ul class="text-xs text-gray-500 space-y-2 mb-4 leading-relaxed">
+                            <li>‧ 靈動野性，自信微笑中帶有神聖威儀</li>
+                            <li>‧ 改良自京劇戲曲之靠甲與綠玉翡翠</li>
+                            <li>‧ 強烈動態張力與金色氣雲背景</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💡 STREAMING_CHUNK: 建立地誌探索五大場景網格 -->
+    <section id="scenery" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div class="max-w-2xl">
+                    <h3 class="serif text-4xl text-[#2D2D2D] font-bold mb-4">沉浸式場景探索</h3>
+                    <p class="text-gray-500 leading-relaxed">從赤崁晨曦到時空裂縫，將台南古蹟與 AI 重塑的奇幻世界完美交疊，建立玩家的視覺解謎連結。</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <p class="text-[#A61D24] font-bold border-b-2 border-[#A61D24] pb-2">16:9 沉浸式視覺</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 赤崁晨曦 -->
+                <div class="scene-card relative rounded-2xl overflow-hidden group h-64 bg-zinc-900 shadow-md">
+                    <img src="鷲嶺赤崁的清晨微光.jpg" data-fallback-type="scene" data-fallback-name="鷲嶺赤崁晨曦" alt="赤崁晨曦" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                    <div class="scene-overlay absolute inset-0 p-6 flex flex-col justify-end z-10">
+                        <h5 class="text-[#D4AF37] font-bold serif text-xl">鷲嶺赤崁晨曦</h5>
+                        <p class="text-white text-xs opacity-80 mt-2 italic">故事開點：雨後倒影與燕尾脊的清晨微光</p>
+                    </div>
+                </div>
+                <!-- 神農深夜 -->
+                <div class="scene-card relative rounded-2xl overflow-hidden group h-64 bg-zinc-900 shadow-md">
+                    <img src="神農街的深夜燈火與幻影.jpg" data-fallback-type="scene" data-fallback-name="神農街深夜幻影" alt="神農深夜" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                    <div class="scene-overlay absolute inset-0 p-6 flex flex-col justify-end z-10">
+                        <h5 class="text-[#D4AF37] font-bold serif text-xl">神農街深夜幻影</h5>
+                        <p class="text-white text-xs opacity-80 mt-2 italic">魔法氛圍：傳統燈籠與金色粒子之引導</p>
+                    </div>
+                </div>
+                <!-- 廟宇密碼 -->
+                <div class="scene-card relative rounded-2xl overflow-hidden group h-64 bg-zinc-900 shadow-md">
+                    <img src="開基靈祐宮的香火密碼.jpg" data-fallback-type="scene" data-fallback-name="開基靈祐宮香火" alt="廟宇密碼" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                    <div class="scene-overlay absolute inset-0 p-6 flex flex-col justify-end z-10">
+                        <h5 class="text-[#D4AF37] font-bold serif text-xl">開基靈祐宮香火</h5>
+                        <p class="text-white text-xs opacity-80 mt-2 italic">解謎關鍵：香煙凝聚成的卦象與密碼</p>
+                    </div>
+                </div>
+                <!-- 榕樹封印 -->
+                <div class="scene-card relative rounded-2xl overflow-hidden group h-64 bg-zinc-900 shadow-md">
+                    <img src="府城百年老榕樹下的封印.jpg" data-fallback-type="scene" data-fallback-name="百年榕樹之封印" alt="榕樹封印" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                    <div class="scene-overlay absolute inset-0 p-6 flex flex-col justify-end z-10">
+                        <h5 class="text-[#D4AF37] font-bold serif text-xl">百年榕樹之封印</h5>
+                        <p class="text-white text-xs opacity-80 mt-2 italic">歷史斷壁：盤根錯節中的青色熒光密碼</p>
+                    </div>
+                </div>
+                <!-- 時空裂縫 -->
+                <div class="scene-card relative rounded-2xl overflow-hidden group h-64 lg:col-span-2 bg-zinc-900 shadow-md">
+                    <img src="大天后宮的歷史時空裂縫.jpg" data-fallback-type="scene" data-fallback-name="大天后宮時空裂縫" alt="時空裂縫" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 smart-img" onload="this.classList.add('loaded')" onerror="handleImageError(this)">
+                    <div class="scene-overlay absolute inset-0 p-6 flex flex-col justify-end z-10">
+                        <h5 class="text-[#D4AF37] font-bold serif text-2xl">大天后宮時空裂縫</h5>
+                        <p class="text-white text-sm opacity-80 mt-2 italic">高潮結局：現實古蹟與奇幻神界之碰撞交錯</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 💡 STREAMING_CHUNK: 建立玩法機制與數據圖表區 -->
+    <section id="mechanics" class="py-24 bg-[#2D2D2D] text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="serif text-4xl text-[#D4AF37] mb-8 font-bold">互動機制與資產分佈</h3>
+                    <div class="space-y-6 mb-12">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full border border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] shrink-0 shadow-md">01</div>
+                            <div>
+                                <h5 class="font-bold mb-1 text-gray-100">八卦羅盤定向 (Bagua Compass)</h5>
+                                <p class="text-sm text-gray-400">玩家需旋轉天干地支，對比古地圖方位解鎖下一步線索。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full border border-[#D4AF37] flex items-center justify-center font-bold text-[#D4AF37] shrink-0 shadow-md">02</div>
+                            <div>
+                                <h5 class="font-bold mb-1 text-gray-100">AR 實景疊加 (Augmented Reality)</h5>
+                                <p class="text-sm text-gray-400">掃描現場古蹟，觸發 AI 重塑之歷史奇幻景象與對話。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 統計圖表 -->
+                    <div class="bg-black/30 p-8 rounded-2xl border border-white/10 shadow-lg">
+                        <p class="text-sm font-bold tracking-widest text-gray-400 mb-6 uppercase text-center">Project Asset Metrics</p>
+                        <div class="chart-container">
+                            <canvas id="assetChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2">
+                    <span class="text-[#A61D24] font-bold tracking-widest text-sm uppercase">Future Vision</span>
+                    <h2 class="serif text-4xl mt-2 mb-6 font-bold leading-tight text-gray-100">文學與科技的結合<br><span class="text-[#D4AF37]">300 DPI 專業交付</span></h2>
+                    <p class="text-gray-400 leading-relaxed mb-8">
+                        本專案不記只是美術生成，更是為實體文創預留空間。所有資產具備 300 DPI 高解析度，並保留 PSD 分層，隨時可進行 UI 排版或印刷轉化。
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-6 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                            <p class="text-3xl font-black text-[#A61D24]">3</p>
+                            <p class="text-[10px] text-gray-400 uppercase mt-2 font-bold tracking-tighter">角色設計 (3:4)</p>
+                        </div>
+                        <div class="text-center p-6 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                            <p class="text-3xl font-black text-[#A61D24]">5</p>
+                            <p class="text-[10px] text-gray-400 uppercase mt-2 font-bold tracking-tighter">解謎場景 (16:9)</p>
+                        </div>
+                        <div class="text-center p-6 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                            <p class="text-3xl font-black text-[#A61D24]">2</p>
+                            <p class="text-[10px] text-gray-400 uppercase mt-2 font-bold tracking-tighter">宣傳海報 (16:9)</p>
+                        </div>
+                        <div class="text-center p-6 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                            <p class="text-3xl font-black text-[#A61D24]">100%</p>
+                            <p class="text-[10px] text-gray-400 uppercase mt-2 font-bold tracking-tighter">PSD 分層交付</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 bg-[#1A1A1A] text-center border-t border-[#A61D24]">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="serif text-[#D4AF37] text-3xl mb-4 italic">「文學重塑，府城新生」</h2>
+            <p class="text-gray-400 text-sm mb-8 leading-loose">
+                透過 AI 美術賦予《小封神》嶄新的視覺靈魂，<br>
+                將台南的記憶刻劃在每一條虛擬與實境交錯的街頭。
+            </p>
+            <div class="flex justify-center gap-6 mb-8">
+                <div class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-500 hover:text-[#A61D24] transition-colors cursor-pointer">IG</div>
+                <div class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-500 hover:text-[#A61D24] transition-colors cursor-pointer">FB</div>
+                <div class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-500 hover:text-[#A61D24] transition-colors cursor-pointer">WEB</div>
+            </div>
+            <p class="text-[10px] text-gray-600 tracking-[0.3em] uppercase">© 2024 Xiao Feng Shen Project | Designed by 子翊 (4B2K0023)</p>
+        </div>
+    </footer>
+
+    <!-- 💡 STREAMING_CHUNK: 編寫 JS 容錯備用機制與 Chart 載入事件 -->
+    <script>
+        // 圖片載入容錯安全防護機制：如果平台編譯網域阻擋，優雅切換為美觀的民俗漸層符籙卡牌
+        function handleImageError(img) {
+            // 防止重複觸發
+            if (img.classList.contains('load-failed')) return;
+            img.classList.add('load-failed');
+            
+            img.style.display = 'none';
+            const wrapBox = img.parentElement;
+            const cardType = img.getAttribute('data-fallback-type');
+            const fallbackTitle = img.getAttribute('data-fallback-name') || '';
+
+            // 如果已經有備用卡，不重複生成
+            if (wrapBox.querySelector('.fallback-geom-card')) return;
+
+            const card = document.createElement('div');
+            card.className = 'fallback-geom-card w-full h-full flex flex-col items-center justify-center p-6 text-center select-none relative overflow-hidden transition-all duration-500 rounded-xl';
+
+            if (cardType === 'hero') {
+                card.className += ' bg-gradient-to-b from-[#1C0407] via-[#2A1115] to-[#141414] w-full h-full absolute inset-0';
+                card.innerHTML = `
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(166,29,36,0.3)_0%,transparent_75%)]"></div>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-10">
+                        <span class="serif text-[30vw] font-black select-none text-[#D4AF37]">小封神</span>
+                    </div>
+                    <div class="relative z-10 max-w-lg">
+                        <span class="text-[#D4AF37] uppercase tracking-[0.4em] text-xs font-bold block mb-2">諸神破曉 ‧ 主視覺 A 款</span>
+                        <p class="text-xs text-gray-500">【AI 視覺載入中】請確認工作區存有：諸神破曉（《小封神》主視覺 A 款）.jpg</p>
+                    </div>
+                `;
+                wrapBox.insertBefore(card, wrapBox.firstChild);
+                return;
+            }
+
+            if (cardType === 'character') {
+                if (fallbackTitle === '上帝公') {
+                    card.className += ' bg-gradient-to-br from-[#121212] via-[#242D3C] to-[#0D1B2A] text-white';
+                    card.innerHTML = `
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.15)_0%,transparent_70%)]"></div>
+                        <div class="w-16 h-16 rounded-full border-2 border-[#D4AF37] flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(212,175,55,0.3)] z-10">
+                            <span class="text-2xl serif text-[#D4AF37] font-bold">玄</span>
+                        </div>
+                        <h5 class="serif text-xl font-bold tracking-widest text-[#D4AF37] mb-2 z-10">玄天大帝 ‧ 上帝公</h5>
+                        <p class="text-[10px] text-gray-500 max-w-[200px] leading-relaxed z-10">【AI 視覺載入中】<br>請確認本機有：上帝公（玄天大帝）角色設計.jpg</p>
+                    `;
+                } else if (fallbackTitle === '臨水夫人') {
+                    card.className += ' bg-gradient-to-br from-[#4A1118] via-[#7D1D24] to-[#2D080C] text-white';
+                    card.innerHTML = `
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_70%)]"></div>
+                        <div class="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(255,255,255,0.2)] z-10">
+                            <span class="text-2xl serif text-white font-bold">陳</span>
+                        </div>
+                        <h5 class="serif text-xl font-bold tracking-widest text-white mb-2 z-10">陳靖姑 ‧ 臨水夫人</h5>
+                        <p class="text-[10px] text-gray-400/60 max-w-[200px] leading-relaxed z-10">【AI 視覺載入中】<br>請確認本機有：臨水夫人角色設計.jpg</p>
+                    `;
+                } else if (fallbackTitle === '齊天大聖') {
+                    card.className += ' bg-gradient-to-br from-[#1F1C18] via-[#855D2B] to-[#1E3A27] text-white';
+                    card.innerHTML = `
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.15)_0%,transparent_70%)]"></div>
+                        <div class="w-16 h-16 rounded-full border-2 border-[#D4AF37] flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(212,175,55,0.3)] z-10">
+                            <span class="text-2xl serif text-[#D4AF37] font-bold">空</span>
+                        </div>
+                        <h5 class="serif text-xl font-bold tracking-widest text-[#D4AF37] mb-2 z-10">大聖爺 ‧ 齊天大聖</h5>
+                        <p class="text-[10px] text-gray-500 max-w-[200px] leading-relaxed z-10">【AI 視覺載入中】<br>請確認本機有：齊天大聖（大聖爺）角色設計.jpg</p>
+                    `;
+                }
+            } else if (cardType === 'scene') {
+                card.className += ' bg-gradient-to-br from-[#1C1D1F] via-[#2D3035] to-[#121315] text-white border border-white/5 w-full h-full';
+                card.innerHTML = `
+                    <div class="absolute inset-0 bg-black/40"></div>
+                    <div class="relative z-10 text-center">
+                        <p class="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] mb-1">Scene Blueprint</p>
+                        <h5 class="serif text-lg font-bold text-white mb-1">${fallbackTitle}</h5>
+                        <span class="text-[9px] text-gray-500 block">請確認本機有：${img.getAttribute('src')}</span>
+                    </div>
+                `;
+            } else if (cardType === 'methodology') {
+                card.className += ' bg-gradient-to-br from-[#1B1B1B] to-[#2D2D2D] text-white border border-white/10 w-full h-full absolute inset-0';
+                card.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <span class="text-[#D4AF37] text-xs uppercase tracking-[0.3em] mb-2">Design Spec</span>
+                        <span class="serif text-sm text-gray-400">極簡視覺流 ‧ 八卦羅盤</span>
+                        <span class="text-[9px] text-gray-500 mt-2">請確認本機有：解謎府城（《小封神》主視覺 B 款）.jpg</span>
+                    </div>
+                `;
+            }
+
+            wrapBox.appendChild(card);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 強制檢查已經成功載入的圖片，觸發淡入動畫
+            document.querySelectorAll('.smart-img').forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                }
+            });
+
+            // 初始化 Chart.js 資產分佈圖
+            const chartContext = document.getElementById('assetChart').getContext('2d');
+            new Chart(chartContext, {
+                type: 'doughnut',
+                data: {
+                    labels: ['角色設計 (3:4)', '場景視覺 (16:9)', '主視覺海報 (16:9)'],
+                    datasets: [{
+                        label: '資產數量',
+                        data: [3, 5, 2],
+                        backgroundColor: [
+                            '#A61D24', // 絳紅
+                            '#D4AF37', // 帝金
+                            '#4A4A4A'  // 灰色
+                        ],
+                        borderColor: '#2D2D2D',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#9CA3AF',
+                                padding: 20,
+                                font: {
+                                    size: 11,
+                                    family: 'Noto Sans TC'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1A1A1A',
+                            titleFont: { size: 14, family: 'Noto Serif TC' },
+                            bodyFont: { size: 12, family: 'Noto Sans TC' }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 滾動導航啟動效果
+            const sectionElements = document.querySelectorAll('section');
+            const navAnchors = document.querySelectorAll('nav a');
+
+            window.addEventListener('scroll', () => {
+                let currentActiveSectionId = '';
+                sectionElements.forEach(sec => {
+                    const topOfSection = sec.offsetTop;
+                    if (window.pageYOffset >= topOfSection - 150) {
+                        currentActiveSectionId = sec.getAttribute('id');
+                    }
+                });
+
+                navAnchors.forEach(anc => {
+                    anc.classList.remove('nav-active');
+                    if (anc.getAttribute('href').includes(currentActiveSectionId)) {
+                        anc.classList.add('nav-active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
